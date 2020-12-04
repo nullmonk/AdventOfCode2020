@@ -10,8 +10,8 @@ validation = {
     "pid": lambda x: bool(re.match("^[0-9]{9}$", x))
 }
 
-count = 0
-count2 = 0
+count, count2 = 0, 0
+
 with open("data.txt") as fil:
     for r in fil.read().split("\n\n"):
         rcd = {}
@@ -19,7 +19,6 @@ with open("data.txt") as fil:
             rcd[k] = v
         if all([i in rcd for i in validation.keys()]):
             count += 1
-            if all([fn(rcd[i]) for i, fn in validation.items()]):
-                count2 += 1
-print("Part 1:", count)
-print("Part 2:", count2)
+            if all([fn(rcd[i]) for i, fn in validation.items()]): count2 += 1
+
+print("Part 1: {}\nPart 2: {}".format(count, count2))
