@@ -7,7 +7,7 @@ validation = {
     "hgt": lambda x: (x.endswith("in") and 59 <= int(x.strip("in")) <= 76) or (x.endswith("cm") and 150 <= int(x.strip("cm")) <= 193),
     "hcl": lambda x: bool(re.match("^#[0-9a-f]{6}$", x)),
     "ecl": lambda x: bool(re.match("^(amb|blu|brn|gry|grn|hzl|oth)$", x)),
-    "pid": lambda x: bool(re.match("^[0-9]{9}$", x))
+    "pid": lambda x: x.isnumeric() and len(x) == 9
 }
 
 count, count2 = 0, 0
