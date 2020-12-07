@@ -2,17 +2,28 @@ import sys
 from collections import defaultdict
 
 
-#class Bags(dict):
-#    def __init__(self):
+class Bags(dict):
+    def __init__(self):
+        self._bags = {}
+    
+    def __getitem__(self, bag):
+        return self._bags[str(bag)]
+    
+    def newBag(self, color, line=""):
+        b = Bag(color, line, parent=self)
+        self._bags[str(color)] = b
+        return b
 
-bag_colors = {}
+    def items(self):
+        return self._bags.items()
+
 
 class Bag(object):
-    def __init__(self, color, line, bagmap={}):
+    def __init__(self, color, line, parent=None):
         self._line = line
         self.color = color
         self.bags = defaultdict(int)
-        self.bagmap = bagmap
+        self.parent = parent
 
     def addSubBags(self, *bags):
         for bag in bags:
@@ -30,40 +41,34 @@ class Bag(object):
     def getCount(self):
         fcount = 0
         for b, count in self.bags.items():
-            i = (count * self.bagmap[b].getCount())
+            i = (count * (self.parent[b].getCount()+1))
             fcount += i
-        return fcount + 1
-    
-    def getCountTest(self):
-        print(self.color, "bags contain ", end="")
-        sm = 0
-        for k, v in self.bags.items():
-            print(v, k, "bags, ", end="")
-            sm += v
-        print("total:", sm)
-    
+        return fcount
+
     def getBagString(self):
         string = []
         for bag_name in self.bags:
-            string += ["{}: {}".format(bag_name, self.bagmap[bag_name].getBagString())]
+            string += ["{}: {}".format(bag_name, self.parent[bag_name].getBagString())]
         return ", ".join(string)
 
 
-with open(sys.argv[1]) as fil:
-    for line in fil.readlines():
-        color, rest = line.split(" bags contain ", maxsplit=1)
-        b = Bag(color, line.strip(), bag_colors)
-        bag_colors[b.color] = b
-        if "no other bags" in rest:
-            continue
-        b.addSubBags(*rest.split(", "))
+def main():
+    bags = Bags()
+    with open(sys.argv[1]) as fil:
+        for line in fil.readlines():
+            color, rest = line.split(" bags contain ", maxsplit=1)
+            b = bags.newBag(color, line)
+            if "no other bags" in rest:
+                continue
+            b.addSubBags(*rest.split(", "))
+
+    count = 0
+    for b, v in bags.items():
+        if "shiny gold" in v.getBagString():
+            count += 1
 
 
-count = 0
-for b, v in bag_colors.items():
-    if "shiny gold" in v.getBagString():
-        count += 1
+    print(count)
+    print(bags["shiny gold"].getCount())
 
-
-print(count)
-print(bag_colors["shiny gold"].getCount() - 1)
+main()
